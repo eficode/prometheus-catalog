@@ -15,8 +15,9 @@ except Exception:
     print('Could not import `uwsgidecorators`, entry expiration will not work')
 
 db_file = os.getenv('DB_FILE', 'db.json')
+file_sd_config = os.getenv('FILE_SD_CONFIG', 'file_sd_config.json')
 time_to_live = int(os.getenv('TIME_TO_LIVE', 60 * 60 * 24))
-app = Flask(__name__)
+app = Flask('prometheus-catalog')
 db = TinyDB(db_file)
 
 
@@ -60,23 +61,20 @@ def register():
                        ).isoformat()
     }
     db.upsert(value, where('hostname') == hostname)
+    update_file_sd_config()
     return '', 201
 
 
 @app.route('/unregister/<hostname>', methods=['DELETE'])
 def unregister(hostname):
     db.remove(where('hostname') == hostname)
+    update_file_sd_config()
     return '', 204
 
 
 @app.route('/list', methods=['GET'])
 def list_endpoints():
-    data = db.all()
-    result = []
-    for elem in data:
-        record = {'labels': elem['labels'], 'targets': elem['targets']}
-        result.append(record)
-    return json.dumps(result), 200, {
+    return json.dumps(get_file_sd_config()), 200, {
             'Content-Type': 'application/json; charset=utf-8'}
 
 
@@ -95,8 +93,26 @@ try:
     def remove_expired(num):
         print('Running cleanup of expired entries ...')
         db.remove(where('expiration') < datetime.utcnow().isoformat())
+        update_file_sd_config()
 except Exception as e:
     print(e)
+
+
+def update_file_sd_config():
+    with open(file_sd_config, 'w') as f:
+        f.write(json.dumps(get_file_sd_config()))
+
+
+def get_file_sd_config():
+    data = db.all()
+    result = []
+    for elem in data:
+        record = {'labels': elem['labels'], 'targets': elem['targets']}
+        result.append(record)
+    return result
+
+
+update_file_sd_config()
 
 # Run in develop mode
 if __name__ == '__main__':

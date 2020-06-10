@@ -60,6 +60,13 @@ def register():
         'expiration': (datetime.utcnow() + timedelta(seconds=time_to_live)
                        ).isoformat()
     }
+    duplicate = db.get((where('hostname') != hostname) &
+                       (where('labels') == value['labels']) &
+                       (where('targets') == value['targets']))
+    if duplicate is not None:
+        return ('Refusing to update, duplicate value found at hostname `{}`'
+                .format(duplicate['hostname'])), 400
+
     db.upsert(value, where('hostname') == hostname)
     update_file_sd_config()
     return '', 201

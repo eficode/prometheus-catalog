@@ -1,0 +1,7 @@
+Dockerfile
+__pycache__
+.git
+bin/
+lib/
+pyvenv.cfg
+db.json

@@ -5,20 +5,20 @@ Simple service that keeps list of prometheus scrape targets in redis. The servic
 
 ## Usage
 
-    docker run -p 5000:80 -v $(pwd)/db.json:/tmp/db.json -e DB_FILE=/tmp/db.json -e TIME_TO_LIVE=120 -ti --rm --name pcatalog prometheus-catalog
+    docker run -p 5000:80 -v $(pwd)/db:/var/db -ti --rm eficode/prometheus-catalog:latest
 
 
 ## Environment variables
 
-- `DB_FILE`: Json database file name, use volume for persistence. Default: `/srv/flask_app/db.json`
-- `TIME_TO_LIVE`: Registered entry expire time in seconds. Default is 1 day
+- `DB_FILE`: Json database file name, use volume for persistence. Default: `/var/db/db.json`
+- `TIME_TO_LIVE`: Registered entry expiration time in seconds. Default is 1 day
 
 
 ## API
 
 ### Register
 
-    curl -d'{"labels":{"foo":true,"bar":false},"targets":["192.168.1.1"],"hostname":"localhost"}' -H'Content-Type: application/json' http://127.0.0.1:5000/register
+    curl -d'{"labels":{"foo":true,"bar":false},"targets":["127.0.0.1"],"hostname":"localhost"}' -H'Content-Type: application/json' http://127.0.0.1:5000/register
 
 ### Unregister
 

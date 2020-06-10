@@ -4,4 +4,4 @@ __pycache__
 bin/
 lib/
 pyvenv.cfg
-db.json
+db/

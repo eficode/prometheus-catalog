@@ -2,7 +2,8 @@
 set -e
 service nginx start
 
-export DB_FILE="${DB_FILE:-/srv/flask_app/db.json}"
+export DB_FILE="${DB_FILE:-/var/db/db.json}"
+mkdir -p "$(dirname $DB_FILE)"
 touch "$DB_FILE"
 chown www-data:www-data "$DB_FILE"
 

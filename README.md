@@ -25,11 +25,21 @@ As a standalone service, cronjob can be used to periodically fetch with `http://
 
 ### Register
 
-    curl -d'{"labels":{"foo":true,"bar":false},"targets":["127.0.0.1"],"hostname":"localhost"}' -H'Content-Type: application/json' http://127.0.0.1:5000/register
+Example for registering:
+
+    curl -d'{"labels":{"job":"nodes"},"targets":["node.some-domain.com:9100"],"hostname":"some-domain.com"}' -H'Content-Type: application/json' http://127.0.0.1:5000/register
+
+If the metrics route is not "/metrics", but something else:
+
+    curl -d'{"labels":{"job":"nodes","__metrics_path__":"/some-metrics"},"targets":["node.some-domain.com:9100"],"hostname":"some-domain.com"}' -H'Content-Type: application/json' http://127.0.0.1:5000/register
+
+The subsequent registrations with same `hostname`, will update/add `labels` and/or add `targets`.
+For removing `labels` or `targets`, you need to unregister first and then do the register again with correct values.
+API will return Bad Request if the entry with same `labels` and `targets` already exist, regardless of `hostname` value.
 
 ### Unregister
 
-    curl -XDELETE http://127.0.0.1:5000/unregister/localhost
+    curl -XDELETE http://127.0.0.1:5000/unregister/some-domain.com
 
 ### List
 

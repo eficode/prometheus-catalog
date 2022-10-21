@@ -76,7 +76,7 @@ def healthz():
 @app.route('/register', methods=['POST'])
 def register():
     with open_database(db_file, lock=True) as db:
-        content = request.get_json()
+        content = request.get_json(force=True)
         hostname = content.get('hostname')
         targets = content.get('targets', [])
         labels = content.get('labels', {})
